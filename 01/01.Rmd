@@ -1,0 +1,386 @@
+---
+title: "Playing with R Part I: Continuous Datasets"
+author: "Moorissa Tjokro"
+output:
+  html_notebook: default
+  html_document: default
+---
+## Exploratory Data Analysis and Visualizations (STAT GR5702)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### PART 1
+Find one graph that you like and one that you don't online or in print and write one paragraph for each, describing what you think is effective or not effective. Your evaluation does not need to be tied to any theory or principles discussed in class so far. Be sure to include images and/or links to the graphs, with sources cited. The graphs may be static or dynamic. Some submissions will be discussed in class. *[10 points]*
+
+**Good Graph**
+![Source: Blog Hub Spot ^1^](https://blog.hubspot.com/hs-fs/hubfs/Agency_Post/Blog_Images/bubble-chart.png?t=1485636016543&width=1338&name=bubble-chart.png)
+  
+[1] Source: https://blog.hubspot.com/marketing/data-visualization-choosing-chart#sm.0000iw0h7xqvpfkjtrb1yn3ppel7m
+
+I like how bubble charts are always fun to play with and analyze. The above graph is effective in displaying distribution and relationship between multiple variables, such as the number of online hours with age, gender, and population size. The use of bubble opacity is also effective for understanding the overlaps between variables. We can see through the positive linear correlation that the hours spent online increases as kids grow with age. Although this dataset only focuses on children, it would be interesting to also see some relationship among adults and across today's millennial generation.
+
+\
+**Bad Graph** \
+\
+![Source: Flowing Data ^2^](http://i0.wp.com/flowingdata.com/wp-content/uploads/2015/08/weight-bars-120-base1.png?w=2000)
+[2] Source: https://blog.hubspot.com/marketing/data-visualization-choosing-chart#sm.0000iw0h7xqvpfkjtrb1yn3ppel7m
+
+The graph above is not very effective because there is a conflict between bar height and the measurements. The chart baseline is not very well defined, since the measurement of weight over time does not start from zero. This can mislead our perception of the weight differences over time. That is, what looks like a high increase/decrease in weight from day n to n+1 does not proportionally reflect the real fluctuation of the weight.
+
+\
+**Fixing the Bad Graph** \
+\
+![Source: Flowing Data ^2^](http://i1.wp.com/flowingdata.com/wp-content/uploads/2015/08/line-plot1.png?w=2000)
+[2] Source: https://blog.hubspot.com/marketing/data-visualization-choosing-chart#sm.0000iw0h7xqvpfkjtrb1yn3ppel7m
+
+In order to solve this distortion issue, we can focus on the weight change by using a line chart rather than bars. In this case, the graph does not need a zero baseline because bar length is out of the picture. Therefore, not only that the context of the graph would now align well with the visual encoding, but viewers would also be able to see more clearly how the weight changes over time. \
+
+
+### PART 2
+Chapter 3, pp. 50-51, from Graphical Data Analysis with R: \
+**1) Galaxies**
+The dataset galaxies in the package MASS contains the velocities of 82 planets. *[5 points]* \
+(a) Draw a histogram, a boxplot, and a density estimate of the data. What information can you get from each plot? Use base graphics. 
+
+```{r}
+if (!require('MASS')) 
+{
+  install.packages('MASS');
+  library(MASS);
+}
+```
+
+```{r}
+# Histogram:
+gal <- galaxies/1000
+hist(gal, col = "lightblue", border="black", main="Histogram for Galaxies", xlab = "Velocity of Galaxy (1000km/s)",las=1,breaks=10)
+abline(v = mean(gal), col = "red")
+```
+
+The histogram lets us see the frequency distribution of Galaxies dataset containing the velocity of 82 planets. While the distribution seems to be unimodal (one-peak-distribution), it is slightly skewed right or positively skewed. The mean, marked by a red line, is slightly located on the right of the highest peak. The overall distribution is asymmetric.
+
+\
+```{r}
+# Boxplot:
+boxplot(gal, main="Boxplot of Galaxies", xlab="Velocity of Galaxy (1000km/s)", col="orange", horizontal=TRUE, varwidth=TRUE, ylim=c(5,35))
+```
+
+Most of the observations are concentrated on the low end of scale, which means that data distribution is skewed right because more datapoints are within the first quartile and median. The interquartile range, which indicates the middle half of Galaxies dataset, is about 3.5 and median is around 21 (unit velocity in 1000km/s).
+
+\
+```{r}
+# Density Estimate:
+plot(density(gal), main = "Density Estimate for Galaxies",col="red", lwd=2)
+abline(v = mean(gal), col = "green")
+# To create the density histogram, we can use:
+# hist(gal, freq = FALSE, las = 1, col = "lightgray", xlab = "Velocity of Galaxy (1000km/s)", main = "Density Histogram for Galaxies",prob=TRUE)
+```
+
+The density estimate (red line) above confirms both our histogram and boxplot -- that data distribution is positively skewed as the mean, indicated by green line, lies on the right side of the peak. The bandwidth of 1.002 indicates a close measure of how the density matches the distribution. 
+
+\
+(b) Experiment with different binwidths for the histogram and different bandwidths for the density estimates. Which choices do you think are best for conveying the information in the data?
+\
+```{r}
+# Density Histogram - Version 1:
+hist(gal, freq = FALSE, las = 1, col = "lightpink", xlab = "Velocity of Galaxy (1000km/s)", main = "Density Histogram for Galaxies",prob=TRUE,breaks=5)
+```
+
+```{r}
+# Density Histogram - Version 2:
+hist(gal, freq = FALSE, las = 1, col = "lightpink", xlab = "Velocity of Galaxy (1000km/s)", main = "Density Histogram for Galaxies",prob=TRUE,breaks=10)
+```
+
+```{r}
+# Density Histogram - Version 3:
+hist(gal, freq = FALSE, las = 1, col = "lightpink", xlab = "Velocity of Galaxy (1000km/s)", main = "Density Histogram for Galaxies",prob=TRUE,breaks=20)
+```
+
+Three histograms above are plotted with the same Galaxies dataset, but in different binwidths with each bin representing 5000, 2000, and 1000 km/s velocity respectively. We can observe density histograms in a similar way as we look at frequency histograms. The main difference lies in the y-axis function, where the regular histogram represents the product function of density and velocity, while the density histogram reflects the frequency divided by class width, which is also a range of velocity.
+\
+\
+Comparing three versions of histograms above, the first version has too wide of binwidths, which can mislead our perception to think that the graph is skewed left (where in fact it shows otherwise especially in the later two histograms). The second histogram is quite accurate, letting us see that the distribution is indeed slightly skewed to the right with more dataset contained on the left side of the distribution. The last density histogram shows a good distribution. Although it has gaps in between data, we see that the height distribution of histogram bars match closely to that we saw in the density line, where the peak is clearly between 19 to 20 (unit velocity in 1000 km/s). Therefore, breaking the binwidth smaller using higher breaks (breaks=20), seems to be the best density histogram option that gives us a more accurate acumen for looking at data distribution.
+
+\
+
+```{r}
+# Density Estimate - Version 1:
+plot(density(gal, adjust=.5), main = "Density Estimate for Galaxies",col="blue", lwd=2)
+```
+```{r}
+# Density Estimate - Version 2:
+plot(density(gal, adjust=1), main = "Density Estimate for Galaxies",col="blue", lwd=2)
+```
+```{r}
+# Density Estimate - Version 3:
+plot(density(gal, adjust=5), main = "Density Estimate for Galaxies",col="blue", lwd=2)
+```
+
+The density plots above give us a flexibility in choosing how closely we want the density to match the actual distribution. Note that in all three plots, N=82 is constant (the number of planets in Galaxies dataset). 
+\
+\
+In version 1, while the plot matches very closely to the actual distribution with bandwith equals to 0.5, the line looks very bumpy, making it quite hard for us to judge the overall plot of data distribution. The second version has bandwidth of 1, similar to the default plot we see earlier in (a). The distribution is smoothly plotted and can tell us clearly where is the peak and if there is certain class range of velocity that is more densed or has more datapoints than another. In the last case of density plot with bandwidth = 5, it becomes harder for us to check the overall distribution since the line gets too smooth. This can be misleading too since the plot now resembles a normal distribution. Therefore, the best option for density estimate is by using bandwidth = 1.
+
+\
+**3) Student Survey** \
+The data come from an old survey of 237 students taking their first statistics course. The dataset is called survey in the package MASS. *[10 points]* \
+```{r}
+if (!require('ggplot2')) 
+{
+  install.packages('ggplot2');
+  library(ggplot2);
+}
+```
+\
+(a) Draw a histogram of student heights and overlay a density estimate of the data. Is there evidence of bimodality?
+
+```{r}
+ggplot(survey, aes(x=Height)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth=4)+
+ geom_density(alpha=.2, fill="#FF6666") 
+```
+\
+According to the above histogram, there is no evidence of bimodality in the data and hence it is unimodal distribution. The peak is within the height range of 166 and 170 cm, while the bars in other class bins are in lower, if not much smaller, frequency density. The histogram is also skewed to the right.
+
+\
+(b) Experiment with different binwidths for the histogram and different bandwidths for the density estimates. Which choices do you think are best for
+conveying the information in the data?
+```{r}
+library(reshape2)
+if (!require('plotly')) 
+{
+  install.packages("plotly")
+  library(plotly)
+}
+```
+
+We approach this question similarly to 1b above.
+```{r}
+# Density Histogram - Version 1:
+ggplot(survey, aes(x=Height)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="lightblue", binwidth=1)
+```
+```{r}
+# Density Histogram - Version 2:
+ggplot(survey, aes(x=Height)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="lightblue", binwidth = 4)
+```
+```{r}
+# Density Histogram - Version 3:
+ggplot(survey, aes(x=Height)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="lightblue", binwidth = 8)
+```
+\
+The first histogram contains bar with binwidths that are too thin. If we are solely looking at this density histogram without considering plotting any density estimate, one may assume that the graph is bimodal (having two peaks around 165 and 170). However, what we don't realize is the data distribution consistently spikes throughout all range of heights, which thus can be solved by having larger binwidth.
+
+The second histogram solves this as it shows a good distribution of data with a reasonable width of bins. In this case, we increased the binwidth from 1 to 4. We know that distribution is unimodal, as stated in the previous problem. Now lets compare it with another kind of histogram. In the third version of histogram, the binwidth of 8 that is twice as large does make the graph look a lot smoother, and clearly skewed positively (to the right). However, considering the amount of data in the set (237 datapoints), it may be more reasonable to use the second version to classify the bins and observe how the survey data is distributed across various heights. The binwidths, in this case, won't be too large as well. 
+
+\
+
+```{r}
+# Density estimate - Version 1:
+ggplot(survey, aes(x=Height)) + 
+ geom_density(alpha=.2, fill="#FF6600",adjust = 1/5) 
+```
+```{r}
+# Density estimate - Version 2:
+ggplot(survey, aes(x=Height)) + 
+ geom_density(alpha=.2, fill="#FF6600",adjust = 1) 
+```
+```{r}
+# Density estimate - Version 1:
+ggplot(survey, aes(x=Height)) + 
+ geom_density(alpha=.2, fill="#FF6600",adjust = 2) 
+```
+\
+Three density estimates are plotted in 1/5, 1, and 2 bandwidths respectively. The first version is not very clear due too a high amount of spikes. The second and third version show a smooth estimate of the density distribution. Although they both look to be positively skewed, the second one reflects more accurately the frequency density of the students across different heights. Therefore, we pick the second one which also happens to be the default version with bandwidth of 1.
+\
+\
+Combining it together, we have the following histogram with an overlayed density estimate of the data that's similar to that in (a).
+```{r}
+# Histogram Version 2 + Density Estimate Version 2:
+ggplot(survey, aes(x=Height)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="lightblue", binwidth = 4)+
+ geom_density(alpha=.2, fill="#FF6600",adjust = 1) 
+```
+\
+Hence, we choose that histogram with binwidth of 4 and density estimate with bandwidth of 1 would best convey the information in the data.
+
+\
+(c) Compare male and female heights using separate density estimates that are common scaled and aligned with one another.
+```{r}
+# Density estimates for gender comparison:
+ggplot(survey[!is.na(survey$Sex),], aes(Height, fill = Sex, colour = Sex)) +
+  geom_density(alpha = 0.1) +
+  ylim(0, .1)
+```
+\
+The above plot shows two common scaled density estimates based on gender, where female estimate is plotted in pink and male esmtimate is plotted in turqoise color. We can conclude from the graph that female tends to be shorter than their male counterpart. Confirming this claim, we compute the average height for female (165.7cm) v. male (178.83cm), as shown in the following table:
+```{r}
+# Calculate mean height for both genders:
+aggregate(Height~Sex, survey, mean)
+```
+\
+Furthermore, the distribution in each of the two density estimates above follows a unique negatively skewed unimodal distribution. This is interesting because when both subsets are combined, they make a positively skewed distribution. This is caused by a high number of female students with a height range approximately between 165 and 170, and the number gets even higher as there are reasonable number of male students who fall under the same height category.
+
+\
+
+**5) Zuni educational funding** \
+The zuni dataset in the package lawstat seems quite simple. There are three pieces of information about each of 89 school districts in the U.S. State of New Mexico:
+the name of the district, the average revenue per pupil in dollars, and the number of pupils. This apparent simplicity hides an interesting story. The data were used to
+determine how to allocate substantial amounts of money and there were intense legal disagreements about how the law should be interpreted and how the data should be
+used. Gastwirth was heavily involved and has written informatively about the case from a statistical point of view, [Gastwirth, 2006] and [Gastwirth, 2008]. One statistical issue was the rule that before determining whether district revenues were sufficiently equal, the argest and smallest 5% of the data should first be deleted. *[10 points]*\
+```{r}
+if (!require('lawstat')) 
+{
+  install.packages('lawstat');
+  library(lawstat);
+}
+```
+
+\
+(a) Are the lowest and highest 5% of the revenue values extreme? Do you prefer a histogram or a boxplot for showing this?
+\
+Let's first look at the bottom and top 5% of the dataset.
+```{r}
+data(zuni)
+zuni <- data.frame(zuni)
+
+# Find the lowest 5% of the revenue values extreme:
+subset(zuni, Revenue <= quantile(Revenue, 0.05))
+```
+```{r}
+# Find the highest 5% of the revenue values extreme:
+subset(zuni, Revenue > quantile(Revenue, 0.95))
+```
+\
+Extreme values can generally be detected as outliers of the dataset. Now let's plot both histogram and boxplot for Zuni to find out which one can detect outliers better.
+```{r}
+# Histogram:
+ggplot(zuni, aes(x=Revenue)) + 
+ geom_histogram(colour="black", fill="#FFE4B5")
+```
+
+```{r}
+# Define Top and Bottom 5% of the dataset:
+High <- quantile(zuni$Revenue, 0.95)
+Low <- quantile(zuni$Revenue, 0.05)
+
+# Boxplot:
+Boxplot<-ggplot(zuni,aes(x = Mem, y = Revenue))+ coord_flip() 
+Boxplot+ geom_boxplot(width=100,colour="black", fill="#FFFF99") +
+  expand_limits(y=c(2500,6700))+
+  scale_y_continuous(breaks=seq(0, 7000, 500))+
+  geom_hline(aes(yintercept=Low), colour="red",linetype="dashed")+
+  geom_hline(aes(yintercept=High), colour="blue",linetype="dashed")
+```
+\
+It is much easier to identify outliers or extreme values using boxplot than histogram. Boxplot allows you to see the dots as identified outliers. By drawing lines to separate the bottom and top 5% from the rest of datapoints, we can see if this part of the data can be classified as extreme values. All data to the left of the red line represent the bottom 5% and all data to the right of the blue line represent the top 5%. Therefore we can conclude that lowest 5% are not extreme values, but the top 5% are.
+
+\
+
+(b) Having removed the lowest and highest 5% of the cases, draw a density estimate of the remaining data and discuss whether the resulting distribution looks
+symmetric.
+```{r}
+# Remove the bottom and top 5% from the dataset:
+zuni<-zuni[zuni$Revenue < High, ]
+zuni<-zuni[zuni$Revenue > Low, ]
+
+# Density Estimate (zoomed in version with top and bottom 5% removed):
+Boxplot1 <-ggplot(zuni,aes(x = Mem, y = Revenue))+ coord_flip() 
+Boxplot1 + geom_boxplot(width=100,colour="black", fill="#FFFF99") +
+  expand_limits(y=c(2700,3700))+
+  scale_y_continuous(breaks=seq(0, 7000, 100))
+```
+
+By observing the boxplot above, the distribution looks rather skewed right and hence is not symmetric. There are more datapoints concentrated in between the first quartile and median, as compared to that between median and third quartile. We can also confirm this by plotting the histogram and density estimate:
+```{r}
+ggplot(zuni, aes(x=Revenue)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="lightblue", binwidth=80)+
+ geom_density(alpha=.2, fill="#FFFF99") 
+```
+\
+The histogram confirms that the distribution is not symmetric as it is skewed positively.
+\
+\
+(c) Draw a Q-Q plot for the data after removal of the 5% at each end and comment on whether you would regard the remaining distribution as normal.
+```{r}
+# QQ Plot:
+qqplot <-ggplot(zuni,aes(sample=Revenue)) + 
+  theme(plot.title=element_text(hjust=0.5))
+qqplot + stat_qq(color='blue',alpha=0.5) +
+  # geom_abline(intercept = mean(zuni$Revenue), 
+  #             slope = sd(zuni$Revenue), 
+  #             color="orange")+
+  annotate("segment", x=-Inf, xend=Inf,y=-Inf, yend=Inf, color='red', size=0.2)
+```
+\
+In order to see if the data is normally distributed, we need to see if the points in the Q-Q plot lie on a straight diagonal line. The above plot shows a good sign of a unimodal distribution with light tails, however it does not perfectly follow a straight diagonal line. Therefore, we can say that the distribution is slightly right skewed because the slope also tends to be slightly lower than that of normal distribution.\
+
+
+### PART 3
+Submit your three best attempts to display the four characteristics (composition, drawing, colour, and expression) of the 54 classical painters included in the painters dataset (MASS package). Provide brief commentary indicating the strengths and weaknesses of each. At least one of your graphs should include all four characteristics, the other two may or may not. You may use base graphics or ggplot2. *[15 points]* \
+\
+Let's take a look at the dataset first.
+```{r}
+data(painters)
+```
+\
+**Visualization #1**
+For the first visualization, I'd like to compare scores of all 54 classical painters at each school by the assessment characteristics. In order to do this, I use a contour plot by defining `y` in the y-axis as the assessment characteristics, including *Expression*, *Colour*, *Drawing* and *Composition*, `x` in the x-axis as each painter's schools, and `z`, on a 0-20 integer scale legend, as the assessment scores of each painter.
+```{r}
+# for melt/ggplot2 function 
+if (!require('reshape2')) 
+{
+  install.packages('reshape2');
+  library(reshape2);
+}
+```
+
+```{r}
+# Create a contour plot that looks at all 5-dimensions of the file:
+paint <- melt(painters) # Using School as id variables
+names(paint) <- c("x", "y", "z")
+
+v <- ggplot(paint, aes(x, y, z = z))
+v + geom_tile(aes(fill = z)) +
+  ggtitle("Assessment Scores by Characteristics and Classical Painting Schools")
+```
+\
+The strength of this visualization is that it includes and measures all five dimensions of the file effectively. The brightness of the tile increases with higher scores. Therefore, in the area where tiles are very bright, such as Expression in School A, painters get high scores in their assessment. In the above visualization we can claim that School A tends to have the brightest classical painters (receiving higher scores on average than those in other schools), while painters in School F tend to have lower scores across all areas of the assessment (indicated by the darker color).\
+\
+One weakness maybe that including all dimensions at once in one plot can be confusing at first. However, once viewers trying to understand what each axis and legend mean, it should not be too difficult to pick up.\
+\
+**Visualization #2**
+Inspired by today's lecture, I am going to use violin plots to plot the distribution of `Composition` scores by schools. I will also combine it with a scatterplot of `Expression` scores across different schools to see if there is any correlation between `Composition` and `Expression`.
+
+```{r}
+# Create violin plot for score distributions:
+ggplot(painters,aes(x = School, y = Composition)) +
+  geom_violin(fill = "lightpink") +
+  geom_point(aes(size = Expression), colour = "#E0B0FF", position = "jitter") +
+  ggtitle ("Composition and Expression Scores Distribution by Classical Painting Schools") +
+  ylab("Composition Scores") +  xlab ("Classical Painting Schools")
+```
+\
+Strengths of this visualization not only include its unique type and eye-catching style, but it also allows us to understand well the distribution of both `Composition` and `Expression` scores across each school. For instance, School A has a wide range of score distribution (from the lowest at 0 to a relatively high point scores), while other schools tend to have shorter score range. The scores at School F tend to cluster only between 4 to 8 and similarly those at School G tend to cluster between 10 and 17. Furthermore, these two are actually the two characteristics that look the most interesting to me since they correlate to one another. `Expression` scores tend to have a similar distribution to `Composition` scores by schools. \
+\
+One weakness maybe that for viewers who are not familiar with violin plots, it could be hard for them to understand how the violin plots in different sizes correlate to one another. The size does not really tell how many data points are plotted, while with the `Expression` scores, each data point is plotted as a single dot.\
+\
+**Visualization #3**
+The last visualization would be identifying the distribution of Drawing scores by schools.
+\
+
+```{r}
+ggplot(painters) +
+  geom_density(aes(x = Drawing, fill = School), alpha = 0.3) +
+  # scale_fill_discrete(name= "", labels = c("A","B","C","D","E","F","G","H")) +
+  # scale_y_continuous(limits = c(0,100)) +
+  ggtitle ("Drawing Scores Density Estimate by Schools") +
+  xlab("Drawing Scores") +  ylab ("Density") + facet_grid(. ~ School)+guides(fill=FALSE)
+```
+\
+The strength of this visualization is that it allows viewers to identify and compare distributions of `Drawing` scores across different schools. The use of facet actually helps viewers to see the patterns of data  distribution more clearly. I mentioned this because I started off overlaying all density estimates in one plot -- making it harder to see which distribution is for each school. Another strength is also the facet that provides the same base level (from density point 0), making it easier for viewers to directly compare heights of density between each school. Furthermore, we see that through the Drawing score distributions, School B quite stood out among other schools, as most of its painters scored approximately between 12-16. The scores in other schools, on the other hand, are more distributed across 0-20 assessment scale.\
+\
+One weakness of this visualization is that each distribution would look very skinny because there are eight x-axes while there is only a single y-axis showing the frequency density. For instance, distance between 0 and 20 in scores looks much more narrow compared to distance between 0 and 0.5 in density. This may distort the viewer's perception because of the unproportionality of axes.
