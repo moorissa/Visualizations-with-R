@@ -5,4 +5,4 @@ By: Moorissa Tjokro
 
 ### 01: [Continuous Datasets](http://moorissa.com/Visualizations-with-R/01-Continuous.html)
 ### 02: [Categorical Datasets](http://moorissa.com/Visualizations-with-R/02-Categorical.html)
-### 03: [Factorplots & Whatnots](http://moorissa.com/Visualizations-with-R/01-Factorplots.html)
+### 03: [Factorplots & Whatnots](http://moorissa.com/Visualizations-with-R/0-Factorplots.html)
